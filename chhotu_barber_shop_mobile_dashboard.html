@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chhotu Barber Shop - Owner Mobile Dashboard</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #030712;
+      background-image: radial-gradient(#1e293b 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+    }
+         
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+         
+    /* Realistic iPhone 15 Pro Titanium Frame Shell */
+    .phone-shell {
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 50px rgba(16, 185, 129, 0.15);
+      border: 8px solid #1e293b;
+      outline: 2px solid #334155;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.95) translateY(5px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-pop {
+      animation: popIn 0.25s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-6 text-slate-800">
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="fixed top-5 z-50 transition-all duration-300 opacity-0 pointer-events-none">
+    <div class="bg-emerald-500 text-slate-950 font-bold px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 text-xs">
+      <i class="fa-solid fa-circle-check text-slate-950"></i>
+      <span id="toastMsg">ऑपरेशन सफल!</span>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="w-full max-w-sm flex flex-col items-center">
+         
+    <!-- Phone Top Hint -->
+    <div class="mb-3 text-center text-slate-400 text-xs font-medium flex items-center gap-2">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span>छोटू बारबर - ऑनर मोबाइल डैशबोर्ड</span>
+    </div>
+
+    <!-- Phone Frame / Shell -->
+    <div class="phone-shell relative w-full h-[820px] bg-slate-950 rounded-[52px] p-2 flex flex-col overflow-hidden">
+             
+      <!-- Phone Screen Inside -->
+      <div class="relative w-full h-full bg-slate-900 rounded-[42px] flex flex-col overflow-hidden text-slate-100 shadow-inner border border-slate-800">
+                 
+        <!-- Status Bar -->
+        <div class="bg-slate-950 text-slate-200 px-6 pt-3 pb-1 flex justify-between items-center text-xs font-semibold select-none z-30 border-b border-slate-800/60">
+          <span>9:41</span>
+          <!-- Dynamic Island Notch -->
+          <div class="w-24 h-4 bg-black rounded-full flex items-center justify-end px-2 gap-1.5 shadow-md">
+            <div class="w-2 h-2 rounded-full bg-slate-900"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid font-bold fa-wifi text-[11px]"></i>
+            <i class="fa-solid fa-battery-full text-[13px] text-emerald-400"></i>
+          </div>
+        </div>
+
+        <!-- App Header Bar -->
+        <header class="bg-[#0f221e] text-slate-100 px-3.5 py-3 shadow-md z-20 flex justify-between items-center border-b border-emerald-900/40">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-emerald-600/30 border border-emerald-500/40 flex items-center justify-center text-yellow-400 font-extrabold text-lg shadow-sm">
+              <i class="fa-solid fa-scissors"></i>
+            </div>
+            <div>
+              <h1 class="font-bold text-sm tracking-wide leading-tight text-emerald-100">छोटू बारबर शॉप</h1>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span id="shopStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span id="shopStatusText" class="text-[10px] text-emerald-400 font-medium">दुकान खुली है</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            <!-- Test WhatsApp Direct Button -->
+            <button onclick="sendTestWhatsAppMessage()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white p-2 rounded-lg text-xs transition flex items-center justify-center border border-emerald-400/50 shadow-sm" title="टेस्ट WhatsApp मेसेज भेजें">
+              <i class="fa-brands fa-whatsapp text-sm font-bold"></i>
+            </button>
+            <button onclick="toggleHoliday()" id="holidayBtn" class="bg-emerald-900/50 hover:bg-emerald-900 active:scale-95 text-white p-2 rounded-lg text-xs transition flex items-center gap-1 border border-emerald-700/50 shadow-sm" title="दुकान बंद/खुली बदलें">
+              <i class="fa-solid fa-door-open text-emerald-300"></i>
+            </button>
+            <button onclick="openModal('historyModal')" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 p-2 rounded-lg text-xs transition shadow-sm border border-slate-700" title="30-Day History">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
+            <button onclick="openModal('settingsModal')" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 p-2 rounded-lg text-xs transition shadow-sm border border-slate-700" title="सेटिंग्स">
+              <i class="fa-solid fa-gear"></i>
+            </button>
+          </div>
+        </header>
+
+        <!-- Main Scrollable App Screen Content -->
+        <div id="mainAppContent" class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-4 pb-20">
+                     
+          <!-- Banner / Alert if Closed -->
+          <div id="closedAlert" class="hidden bg-amber-500 text-slate-950 p-2.5 rounded-xl text-xs font-bold flex items-center justify-between shadow-sm animate-pop">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-base"></i>
+              <span id="holidayAlertText">दुकान आज बंद घोषित है! (Holiday Mode)</span>
+            </div>
+            <button onclick="toggleHoliday()" class="underline text-[11px]">खोलें</button>
+          </div>
+
+          <!-- Quick Stats Cards Grid -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- Bookings Count -->
+            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 shadow-sm flex flex-col justify-between">
+              <div class="flex justify-between items-center text-slate-400 text-xs">
+                <span>आज की बुकिंग</span>
+                <i class="fa-solid fa-calendar-check text-emerald-400"></i>
+              </div>
+              <div class="mt-2 flex items-baseline justify-between">
+                <span id="statBookingsCount" class="text-2xl font-black text-white">0</span>
+                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded-md font-bold">लाइव</span>
+              </div>
+            </div>
+
+            <!-- Revenue Card -->
+            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 shadow-sm flex flex-col justify-between">
+              <div class="flex justify-between items-center text-slate-400 text-xs">
+                <span>आज की कमाई</span>
+                <button onclick="toggleRevenueEye()" class="text-slate-400 hover:text-emerald-400 transition">
+                  <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              <div class="mt-2 flex items-baseline justify-between">
+                <span id="statRevenue" class="text-xl font-black text-emerald-400">₹0</span>
+                <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md font-bold">UPI / Cash</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Button (Walk-in Booking) -->
+          <button onclick="openModal('walkinModal')" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white py-3 px-4 rounded-2xl shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 text-sm font-bold transition border border-emerald-500/30">
+            <i class="fa-solid fa-plus-circle text-base text-yellow-300"></i>
+            <span>+ नई वॉक-इन ग्राहक बुकिंग जोड़ें</span>
+          </button>
+
+          <!-- Time Slots Blocking Grid (8 AM - 7 PM) -->
+          <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 shadow-sm">
+            <div class="flex justify-between items-center mb-2.5">
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-clock text-emerald-400 text-xs"></i>
+                <h2 class="text-xs font-bold text-slate-200">समय स्लॉट (ब्लॉक/अनब्लॉक)</h2>
+              </div>
+              <span class="text-[10px] text-slate-400">टैप करके ब्लॉक करें</span>
+            </div>
+            <div id="timeSlotContainer" class="grid grid-cols-4 gap-1.5 text-center text-xs">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Live Bookings Section -->
+          <div class="space-y-2">
+            <div class="flex justify-between items-center px-1">
+              <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-list-check text-emerald-400"></i>
+                <span>लाइव बुकिंग सूची (<span id="bookingCountText">0</span>)</span>
+              </h2>
+              <span class="text-[10px] text-emerald-400 font-medium">Auto Sync 🟢</span>
+            </div>
+
+            <div id="bookingList" class="space-y-2.5">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+        </div> <!-- End Screen Scroll Area -->
+
+        <!-- Mobile Bottom Navigation Bar -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 px-6 py-2.5 flex justify-around items-center z-20">
+          <button onclick="showToast('आप मुख्य होम डैशबोर्ड पर हैं')" class="flex flex-col items-center gap-0.5 text-emerald-400">
+            <i class="fa-solid fa-house text-base"></i>
+            <span class="text-[10px] font-bold">होम</span>
+          </button>
+          <button onclick="openModal('walkinModal')" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-emerald-400">
+            <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center -mt-4 shadow-md border-2 border-slate-950">
+              <i class="fa-solid fa-plus text-xs"></i>
+            </div>
+            <span class="text-[10px] font-medium mt-0.5">बुकिंग</span>
+          </button>
+          <button onclick="openModal('settingsModal')" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-emerald-400">
+            <i class="fa-solid fa-sliders text-base"></i>
+            <span class="text-[10px] font-medium">रेट & समय</span>
+          </button>
+        </nav>
+
+        <!-- Phone Home Indicator Bar -->
+        <div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-600 rounded-full z-30 pointer-events-none"></div>
+
+      </div> <!-- End Phone Screen -->
+    </div> <!-- End Phone Shell -->
+
+  </div>
+
+  <!-- MODAL: Walk-In Booking Form -->
+  <div id="walkinModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl w-full max-w-xs p-4 shadow-2xl animate-pop space-y-3">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+          <i class="fa-solid fa-user-plus text-emerald-400"></i>
+          <span>वॉक-इन ग्राहक जोड़ें</span>
+        </h3>
+        <button onclick="closeModal('walkinModal')" class="text-slate-400 hover:text-white text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2.5 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">ग्राहक का नाम</label>
+          <input id="walkinName" type="text" placeholder="उदा: राहुल कुमार" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">मोबाइल नंबर</label>
+          <input id="walkinPhone" type="tel" placeholder="9876543210" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">सर्विस चुनें</label>
+          <select id="walkinService" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
+            <!-- Dynamic services from JS -->
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">समय स्लॉट चुनें</label>
+          <select id="walkinTime" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
+            <!-- Dynamic sync with blocked time slots -->
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">विशेष निर्देश (Note)</label>
+          <input id="walkinNote" type="text" placeholder="उदा: कैंची कटिंग केवल" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
+        </div>
+      </div>
+
+      <div class="pt-2 flex gap-2">
+        <button onclick="closeModal('walkinModal')" class="flex-1 py-2 bg-slate-800 text-slate-300 font-semibold rounded-xl text-xs">रद्द करें</button>
+        <button onclick="saveWalkinBooking()" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs shadow-md">बुक करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Rearrange Time Slot -->
+  <div id="rearrangeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl w-full max-w-xs p-4 shadow-2xl animate-pop space-y-3">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="font-bold text-sm text-amber-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>समय री-शेड्यूल करें</span>
+        </h3>
+        <button onclick="closeModal('rearrangeModal')" class="text-slate-400 hover:text-white text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <input type="hidden" id="rearrangeBookingId">
+      <div class="space-y-2 text-xs">
+        <label class="block text-slate-400 font-medium">नया समय स्लॉट चुनें:</label>
+        <select id="rearrangeNewTime" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
+          <!-- Dynamically populated -->
+        </select>
+      </div>
+      <div class="pt-2 flex gap-2">
+        <button onclick="closeModal('rearrangeModal')" class="flex-1 py-2 bg-slate-800 text-slate-300 font-semibold rounded-xl text-xs">रद्द करें</button>
+        <button onclick="saveRearrangeBooking()" class="flex-1 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl text-xs shadow-md">समय बदलें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: 30-Day History -->
+  <div id="historyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl w-full max-w-xs p-4 shadow-2xl animate-pop space-y-3 max-h-[80vh] flex flex-col">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="font-bold text-sm text-emerald-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-history"></i>
+          <span>पिछले 30 दिनों की हिस्ट्री</span>
+        </h3>
+        <button onclick="closeModal('historyModal')" class="text-slate-400 hover:text-white text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      
+      <div class="flex justify-between items-center text-xs bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+        <div>
+          <span class="text-slate-400 block text-[10px]">कुल बुकिंग</span>
+          <span id="total30DaysCount" class="font-bold text-emerald-400 text-sm">0</span>
+        </div>
+        <div class="text-right">
+          <span class="text-slate-400 block text-[10px]">कुल कमाई</span>
+          <span id="total30DaysRevenue" class="font-bold text-emerald-400 text-sm">₹0</span>
+        </div>
+      </div>
+
+      <div id="historyListContainer" class="flex-1 overflow-y-auto space-y-2 no-scrollbar pr-1">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-between">
+        <button onclick="clear30DaysHistory()" class="text-red-400 hover:text-red-300 text-[11px] underline">हिस्ट्री साफ़ करें</button>
+        <button onclick="closeModal('historyModal')" class="bg-slate-800 text-slate-200 px-3 py-1.5 rounded-xl text-xs">बंद करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Settings & Rates Live Edit -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl w-full max-w-xs p-4 shadow-2xl animate-pop space-y-3 max-h-[85vh] overflow-y-auto no-scrollbar">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+          <i class="fa-solid fa-gear text-emerald-400"></i>
+          <span>दुकान की सेटिंग & रेट्स</span>
+        </h3>
+        <button onclick="closeModal('settingsModal')" class="text-slate-400 hover:text-white text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Shop Details Form -->
+      <div class="space-y-2 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">बहु-दिवसीय छुट्टी (Vacation Mode)</label>
+          <div class="grid grid-cols-2 gap-2 mb-1.5">
+            <div>
+              <span class="text-[10px] text-slate-400">कब से:</span>
+              <input id="vacationStart" type="date" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-1 text-[11px]">
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400">पुनः खुलने की तिथि:</span>
+              <input id="vacationReopen" type="date" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-1 text-[11px]">
+            </div>
+          </div>
+          <button onclick="saveVacationConfig()" class="w-full py-1.5 bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/30 text-amber-300 rounded-lg text-[11px] font-bold">छुट्टी सेट करें / रद्द करें</button>
+        </div>
+
+        <hr class="my-2 border-slate-800">
+
+        <div class="flex justify-between items-center">
+          <label class="font-bold text-slate-300">सर्विस रेट लिस्ट (Live Edit)</label>
+        </div>
+
+        <div id="serviceEditList" class="space-y-2">
+          <!-- Dynamically filled -->
+        </div>
+
+        <!-- Add New Service -->
+        <div class="pt-2 border-t border-slate-800 mt-2">
+          <p class="font-semibold text-slate-400 text-[11px] mb-1.5">+ नई सर्विस जोड़ें</p>
+          <div class="flex gap-1.5">
+            <input id="newServiceName" type="text" placeholder="नाम (उदा: हेड मसाज)" class="flex-1 bg-slate-950 border border-slate-800 text-white rounded-lg px-2 py-1 text-[11px] outline-none">
+            <input id="newServicePrice" type="number" placeholder="₹ रेट" class="w-16 bg-slate-950 border border-slate-800 text-white rounded-lg px-2 py-1 text-[11px] outline-none">
+            <button onclick="addNewService()" class="bg-emerald-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 flex gap-2 border-t border-slate-800">
+        <button onclick="closeModal('settingsModal')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs shadow-md">सेटिंग्स सेव करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // System Variables
+    let isShopOpen = true;
+    let isRevenueVisible = true;
+    const ownerWhatsAppNumber = "919455892653"; // Shop Owner WhatsApp Number (+91 9455892653)
+
+    let vacationMode = {
+      active: false,
+      startDate: "",
+      reopenDate: ""
+    };
+
+    let services = [
+      { id: 1, name: "हेयरकट (Haircut)", price: 100 },
+      { id: 2, name: "दाढ़ी (Beard Trim / Shape)", price: 60 },
+      { id: 3, name: "हेयरकट + दाढ़ी कॉम्बो", price: 150 },
+      { id: 4, name: "फेस वाश / मालिश", price: 80 },
+      { id: 5, name: "हेयर कलर / डाई", price: 200 }
+    ];
+
+    let bookings = [
+      { id: 101, name: "अमित शर्मा", phone: "9876543210", service: "हेयरकट + दाढ़ी कॉम्बो", price: 150, time: "09:30 AM", status: "Confirm" },
+      { id: 102, name: "विक्रम सिंह", phone: "9123456789", service: "हेयरकट (Haircut)", price: 100, time: "11:00 AM", status: "Confirm" },
+      { id: 103, name: "रोहित वर्मा", phone: "9988776655", service: "दाढ़ी (Beard Trim / Shape)", price: 60, time: "01:30 PM", status: "Completed" },
+      { id: 104, name: "संजय गुप्ता", phone: "9776655443", service: "हेयर कलर / डाई", price: 200, time: "04:00 PM", status: "Confirm" }
+    ];
+
+    let timeSlots = [
+      { time: "08:00 AM", status: "free" },
+      { time: "09:00 AM", status: "booked" },
+      { time: "10:00 AM", status: "free" },
+      { time: "11:00 AM", status: "booked" },
+      { time: "12:00 PM", status: "blocked" },
+      { time: "01:00 PM", status: "free" },
+      { time: "02:00 PM", status: "free" },
+      { time: "03:00 PM", status: "free" },
+      { time: "04:00 PM", status: "booked" },
+      { time: "05:00 PM", status: "free" },
+      { time: "06:00 PM", status: "free" },
+      { time: "07:00 PM", status: "free" }
+    ];
+
+    // Helper Toast Function
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      if (!toast || !toastMsg) return;
+      toastMsg.innerText = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2500);
+    }
+
+    // Modal Helpers
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    }
+
+    // Window Load Initialization
+    window.onload = function() {
+      renderBookings();
+      renderTimeSlots();
+      renderServiceDropdown();
+      renderServiceSettings();
+      calculateStats();
+    };
+
+    // WhatsApp Message Sending Functions
+    function sendTestWhatsAppMessage() {
+      const msg = encodeURIComponent("💈 *छोटू बारबर शॉप - अलार्म नोटिफिकेशन*\n\nनमस्ते ऑनर! आपका ऑनर मोबाइल डैशबोर्ड पूरी तरह से WhatsApp से कनेक्ट हो चुका है।");
+      window.open(`https://wa.me/${ownerWhatsAppNumber}?text=${msg}`, '_blank');
+      showToast("WhatsApp टेस्ट मेसेज भेजा जा रहा है...");
+    }
+
+    function sendBookingWhatsApp(id) {
+      const b = bookings.find(item => item.id === id);
+      if (!b) return;
+
+      const text = `💈 *छोटू बारबर शॉप - बुकिंग रसीद*\n\n` +
+                   `👤 *ग्राहक:* ${b.name}\n` +
+                   `📞 *फ़ोन:* ${b.phone}\n` +
+                   `✂️ *सर्विस:* ${b.service}\n` +
+                   `⏰ *समय:* ${b.time}\n` +
+                   `💰 *कुल शुल्क:* ₹${b.price}\n` +
+                   `📌 *स्थिति:* ${b.status === 'Completed' ? 'पूरा हुआ (Paid)' : 'कन्फर्म'}\n\n` +
+                   `धन्यवाद! फिर पधारें।`;
+
+      const encodedMsg = encodeURIComponent(text);
+      window.open(`https://wa.me/${ownerWhatsAppNumber}?text=${encodedMsg}`, '_blank');
+      showToast("WhatsApp रसीद भेजी जा रही है...");
+    }
+
+    // Holiday Status Toggle
+    function toggleHoliday() {
+      isShopOpen = !isShopOpen;
+      const closedAlert = document.getElementById('closedAlert');
+      const holidayBtn = document.getElementById('holidayBtn');
+      const shopDot = document.getElementById('shopStatusDot');
+      const shopText = document.getElementById('shopStatusText');
+             
+      if (!isShopOpen) {
+        closedAlert.classList.remove('hidden');
+        holidayBtn.className = "bg-amber-600 hover:bg-amber-500 text-white p-2 rounded-lg text-xs transition flex items-center gap-1 shadow-sm";
+        shopDot.className = "w-2 h-2 rounded-full bg-red-500";
+        shopText.className = "text-[10px] text-red-400 font-medium";
+        shopText.innerText = "दुकान बंद है";
+        showToast("दुकान आज बंद घोषित की गई!");
+      } else {
+        closedAlert.classList.add('hidden');
+        holidayBtn.className = "bg-emerald-900/50 hover:bg-emerald-900 text-white p-2 rounded-lg text-xs transition flex items-center gap-1 border border-emerald-700/50 shadow-sm";
+        shopDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-ping";
+        shopText.className = "text-[10px] text-emerald-400 font-medium";
+        shopText.innerText = "दुकान खुली है";
+        showToast("दुकान वापस खुल गई है!");
+      }
+    }
+
+    // Revenue Eye Mask Toggle
+    function toggleRevenueEye() {
+      isRevenueVisible = !isRevenueVisible;
+      const eyeIcon = document.getElementById('eyeIcon');
+      eyeIcon.className = isRevenueVisible ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
+      calculateStats();
+    }
+
+    // Stats Calculations
+    function calculateStats() {
+      const totalRevenue = bookings.reduce((sum, b) => sum + b.price, 0);
+      document.getElementById('statRevenue').innerText = isRevenueVisible ? `₹${totalRevenue}` : "₹****";
+      document.getElementById('statBookingsCount').innerText = bookings.length;
+      document.getElementById('bookingCountText').innerText = bookings.length;
+
+      // Update 30-Day History Stats
+      const histCount = document.getElementById('total30DaysCount');
+      const histRev = document.getElementById('total30DaysRevenue');
+      if(histCount) histCount.innerText = bookings.length;
+      if(histRev) histRev.innerText = `₹${totalRevenue}`;
+    }
+
+    // Time Slot Rendering
+    function renderTimeSlots() {
+      const container = document.getElementById('timeSlotContainer');
+      const walkinTimeSelect = document.getElementById('walkinTime');
+      const rearrangeTimeSelect = document.getElementById('rearrangeNewTime');
+      if (!container) return;
+      container.innerHTML = "";
+      
+      if (walkinTimeSelect) walkinTimeSelect.innerHTML = "";
+      if (rearrangeTimeSelect) rearrangeTimeSelect.innerHTML = "";
+
+      timeSlots.forEach((slot, index) => {
+        let badgeStyle = "bg-slate-900 text-slate-300 hover:bg-slate-800 border-slate-800";
+        if (slot.status === 'booked') {
+          badgeStyle = "bg-emerald-950 text-emerald-300 font-bold border-emerald-800";
+        } else if (slot.status === 'blocked') {
+          badgeStyle = "bg-red-950/40 text-red-400 line-through border-red-900/50";
+        }
+
+        const div = document.createElement('div');
+        div.className = `p-1.5 rounded-lg border transition cursor-pointer font-medium text-[11px] ${badgeStyle}`;
+        div.innerText = slot.time;
+        div.title = `स्थिति: ${slot.status}`;
+        div.onclick = () => toggleSlotState(index);
+        container.appendChild(div);
+
+        // Populate dropdown options
+        const option = document.createElement('option');
+        option.value = slot.time;
+        if (slot.status === 'blocked') {
+          option.innerText = `${slot.time} (ब्लॉक है)`;
+          option.disabled = true;
+        } else if (slot.status === 'booked') {
+          option.innerText = `${slot.time} (बुक है)`;
+        } else {
+          option.innerText = slot.time;
+        }
+        
+        if (walkinTimeSelect) walkinTimeSelect.appendChild(option.cloneNode(true));
+        if (rearrangeTimeSelect) rearrangeTimeSelect.appendChild(option);
+      });
+    }
+
+    function toggleSlotState(index) {
+      if (timeSlots[index].status === 'free') {
+        timeSlots[index].status = 'blocked';
+        showToast(`${timeSlots[index].time} स्लॉट ब्लॉक कर दिया`);
+      } else if (timeSlots[index].status === 'blocked') {
+        timeSlots[index].status = 'free';
+        showToast(`${timeSlots[index].time} स्लॉट अनब्लॉक किया`);
+      }
+      renderTimeSlots();
+    }
+
+    // Bookings List Render
+    function renderBookings() {
+      const list = document.getElementById('bookingList');
+      if (!list) return;
+      list.innerHTML = "";
+
+      if (bookings.length === 0) {
+        list.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">कोई बुकिंग उपलब्ध नहीं है</div>`;
+        calculateStats();
+        return;
+      }
+
+      bookings.forEach((b) => {
+        const isCompleted = b.status === 'Completed';
+        const card = document.createElement('div');
+        card.className = "bg-slate-950 p-3 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between gap-2 animate-pop";
+                 
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl ${isCompleted ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-900 text-emerald-400 border border-slate-800'} flex items-center justify-center font-bold text-sm shrink-0">
+              <i class="fa-solid ${isCompleted ? 'fa-check-double' : 'fa-user'}"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h3 class="font-bold text-xs text-slate-100">${escapeHtml(b.name)}</h3>
+                <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${isCompleted ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+                  ${isCompleted ? 'पूरा हुआ' : 'कन्फर्म'}
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(b.service)}</p>
+              <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-1">
+                <span><i class="fa-solid fa-clock text-[9px] mr-1"></i>${escapeHtml(b.time)}</span>
+                <span>•</span>
+                <span class="font-bold text-emerald-400">₹${b.price}</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <button onclick="sendBookingWhatsApp(${b.id})" class="p-1.5 rounded-lg bg-emerald-950/50 hover:bg-emerald-900 text-emerald-400 text-[11px]" title="WhatsApp रसीद भेजें">
+              <i class="fa-brands fa-whatsapp font-bold"></i>
+            </button>
+            <button onclick="openRearrangeModal(${b.id})" class="p-1.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/50 text-amber-400 text-[11px]" title="समय बदलें">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
+            <button onclick="toggleBookingStatus(${b.id})" class="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px]" title="स्थिति बदलें">
+              <i class="fa-solid ${isCompleted ? 'fa-rotate-left' : 'fa-circle-check text-emerald-400'}"></i>
+            </button>
+            <button onclick="deleteBooking(${b.id})" class="p-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/50 text-red-400 text-[11px]" title="हटाएं">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+
+      calculateStats();
+      renderHistoryList();
+    }
+
+    function toggleBookingStatus(id) {
+      const b = bookings.find(item => item.id === id);
+      if (b) {
+        b.status = b.status === 'Completed' ? 'Confirm' : 'Completed';
+        renderBookings();
+        showToast("बुकिंग स्थिति अपडेट की गई");
+      }
+    }
+
+    function deleteBooking(id) {
+      bookings = bookings.filter(item => item.id !== id);
+      renderBookings();
+      showToast("बुकिंग हटा दी गई");
+    }
+
+    // Save Walk-in Booking
+    function saveWalkinBooking() {
+      const name = document.getElementById('walkinName').value.trim();
+      const phone = document.getElementById('walkinPhone').value.trim();
+      const serviceId = document.getElementById('walkinService').value;
+      const time = document.getElementById('walkinTime').value;
+
+      if (!name || !phone) {
+        showToast("कृपया नाम और फोन भरें!");
+        return;
+      }
+
+      const selectedServ = services.find(s => s.id == serviceId) || services[0];
+      const newBookingId = Date.now();
+
+      bookings.unshift({
+        id: newBookingId,
+        name: name,
+        phone: phone,
+        service: selectedServ.name,
+        price: selectedServ.price,
+        time: time,
+        status: "Confirm"
+      });
+
+      // Update corresponding slot status
+      const slot = timeSlots.find(s => s.time === time);
+      if (slot) slot.status = 'booked';
+
+      document.getElementById('walkinName').value = "";
+      document.getElementById('walkinPhone').value = "";
+      closeModal('walkinModal');
+      renderBookings();
+      renderTimeSlots();
+
+      showToast("नई वॉक-इन बुकिंग जोड़ी गई!");
+    }
+
+    // Reschedule Logic
+    function openRearrangeModal(id) {
+      document.getElementById('rearrangeBookingId').value = id;
+      openModal('rearrangeModal');
+    }
+
+    function saveRearrangeBooking() {
+      const id = parseInt(document.getElementById('rearrangeBookingId').value);
+      const newTime = document.getElementById('rearrangeNewTime').value;
+
+      const b = bookings.find(item => item.id === id);
+      if (b) {
+        b.time = newTime;
+        closeModal('rearrangeModal');
+        renderBookings();
+        showToast(`समय बदलकर ${newTime} कर दिया गया`);
+      }
+    }
+
+    // Dynamic Services Renderers
+    function renderServiceDropdown() {
+      const select = document.getElementById('walkinService');
+      if (!select) return;
+      select.innerHTML = "";
+      services.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.innerText = `${s.name} - ₹${s.price}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderServiceSettings() {
+      const container = document.getElementById('serviceEditList');
+      if (!container) return;
+      container.innerHTML = "";
+
+      services.forEach(s => {
+        const div = document.createElement('div');
+        div.className = "flex items-center gap-1.5";
+        div.innerHTML = `
+          <input type="text" value="${escapeHtml(s.name)}" onchange="updateServiceData(${s.id}, 'name', this.value)" class="flex-1 bg-slate-950 border border-slate-800 text-white rounded-lg px-2 py-1 text-[11px] outline-none">
+          <input type="number" value="${s.price}" onchange="updateServiceData(${s.id}, 'price', this.value)" class="w-16 bg-slate-950 border border-slate-800 text-emerald-400 font-bold rounded-lg px-2 py-1 text-[11px] outline-none">
+          <button onclick="removeService(${s.id})" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateServiceData(id, field, val) {
+      const serv = services.find(s => s.id === id);
+      if (serv) {
+        if (field === 'price') serv.price = parseFloat(val) || 0;
+        else serv.name = val;
+        renderServiceDropdown();
+      }
+    }
+
+    function removeService(id) {
+      services = services.filter(s => s.id !== id);
+      renderServiceSettings();
+      renderServiceDropdown();
+    }
+
+    function addNewService() {
+      const nameInput = document.getElementById('newServiceName');
+      const priceInput = document.getElementById('newServicePrice');
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value) || 0;
+
+      if (!name) return;
+
+      services.push({ id: Date.now(), name: name, price: price });
+      nameInput.value = "";
+      priceInput.value = "";
+      renderServiceSettings();
+      renderServiceDropdown();
+      showToast("नई सर्विस जोड़ी गई!");
+    }
+
+    // Vacation Mode Config
+    function saveVacationConfig() {
+      const start = document.getElementById('vacationStart').value;
+      const reopen = document.getElementById('vacationReopen').value;
+
+      if (!vacationMode.active && (!start || !reopen)) {
+        showToast("कृपया दोनों तिथियां चुनें!");
+        return;
+      }
+
+      if (vacationMode.active) {
+        vacationMode.active = false;
+        vacationMode.startDate = "";
+        vacationMode.reopenDate = "";
+        showToast("छुट्टी मोड बंद कर दिया गया");
+      } else {
+        vacationMode.active = true;
+        vacationMode.startDate = start;
+        vacationMode.reopenDate = reopen;
+        showToast(`दुकान ${reopen} तक छुट्टी पर है`);
+      }
+    }
+
+    // History Functions
+    function renderHistoryList() {
+      const container = document.getElementById('historyListContainer');
+      if (!container) return;
+      container.innerHTML = "";
+
+      bookings.forEach(b => {
+        const item = document.createElement('div');
+        item.className = "p-2 bg-slate-950 rounded-xl border border-slate-800 text-xs flex justify-between items-center";
+        item.innerHTML = `
+          <div>
+            <span class="font-bold text-slate-200 block">${escapeHtml(b.name)}</span>
+            <span class="text-[10px] text-slate-400">${escapeHtml(b.service)} • ${escapeHtml(b.time)}</span>
+          </div>
+          <span class="font-bold text-emerald-400">₹${b.price}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function clear30DaysHistory() {
+      bookings = [];
+      renderBookings();
+      showToast("हिस्ट्री साफ़ कर दी गई");
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
