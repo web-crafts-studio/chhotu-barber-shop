@@ -92,9 +92,9 @@
             <div>
               <div class="flex items-center gap-1.5">
                 <h1 class="font-bold text-sm tracking-wide leading-tight text-emerald-100">छोटू बारबर शॉप</h1>
-                <!-- Supabase Live Connection Badge -->
-                <span id="dbSyncBadge" class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center gap-1" title="Supabase Database Status">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live DB
+                <!-- Dynamic Supabase Live Connection Badge -->
+                <span id="dbSyncBadge" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700 flex items-center gap-1 cursor-pointer" onclick="openModal('settingsModal')" title="Supabase डेटाबेस की स्थिति देखने/सेट करने के लिए टैप करें">
+                  <span id="dbSyncDot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> <span id="dbSyncText">Local Only</span>
                 </span>
               </div>
               <div class="flex items-center gap-1.5 mt-0.5">
@@ -104,8 +104,10 @@
             </div>
           </div>
           <div class="flex items-center gap-1">
-            <button onclick="sendTestWhatsAppMessage()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white p-2 rounded-lg text-xs transition border border-emerald-400/50 shadow-sm" title="WhatsApp टेस्ट करें">
-              <i class="fa-brands fa-whatsapp text-sm font-bold"></i>
+            <!-- Auto WhatsApp Messaging Toggle Button -->
+            <button onclick="toggleAutoWhatsApp()" id="autoWhatsAppBtn" class="bg-emerald-900/80 hover:bg-emerald-800 active:scale-95 text-emerald-300 p-2 rounded-lg text-xs transition border border-emerald-600/50 shadow-sm flex items-center gap-1" title="ऑटो WhatsApp मैसेज चालू/बंद करें">
+              <i class="fa-brands fa-whatsapp text-sm font-bold text-emerald-400"></i>
+              <span id="autoWAText" class="text-[9px] font-bold">ऑटो: ON</span>
             </button>
             <button onclick="toggleHoliday()" id="holidayBtn" class="bg-emerald-900/50 hover:bg-emerald-900 active:scale-95 text-white p-2 rounded-lg text-xs transition border border-emerald-700/50 shadow-sm" title="Shop Holiday Toggle">
               <i class="fa-solid fa-door-open text-emerald-300"></i>
@@ -180,86 +182,70 @@
             </div>
           </div>
 
-          <!-- Booking List Section -->
-          <div class="space-y-2">
-            <div class="flex justify-between items-center px-1">
-              <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <i class="fa-solid fa-list-check text-emerald-400"></i>
-                <span>लाइव बुकिंग सूची (<span id="bookingCountText">0</span>)</span>
-              </h2>
-              <span class="text-[10px] text-slate-400 font-medium">Supabase Sync 🟢</span>
+          <!-- Bookings List Header -->
+          <div class="flex justify-between items-center px-1 pt-1">
+            <div class="flex items-center gap-1.5">
+              <i class="fa-solid fa-scissors text-emerald-400 text-xs"></i>
+              <h2 class="text-xs font-bold text-slate-200">आज की बुकिंग्स</h2>
             </div>
-
-            <div id="bookingList" class="space-y-2.5">
-              <!-- Rendered via JS -->
-            </div>
+            <span class="text-[10px] text-slate-400 font-medium"><span id="bookingCountText">0</span> अपॉइंटमेंट्स</span>
           </div>
 
-        </div> <!-- End Screen Scroll -->
+          <!-- Bookings List Container -->
+          <div id="bookingList" class="space-y-2">
+            <!-- Dynamically populated -->
+          </div>
 
-        <!-- Bottom Navigation Bar -->
-        <nav class="absolute bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 px-6 py-2.5 flex justify-around items-center z-20">
-          <button onclick="showToast('आप मुख्य ऑनर डैशबोर्ड पर हैं')" class="flex flex-col items-center gap-0.5 text-emerald-400">
-            <i class="fa-solid fa-house text-base"></i>
-            <span class="text-[10px] font-bold">होम</span>
-          </button>
-          <button onclick="openModal('walkinModal')" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-emerald-400">
-            <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center -mt-4 shadow-md border-2 border-slate-950">
-              <i class="fa-solid fa-plus text-xs"></i>
-            </div>
-            <span class="text-[10px] font-medium mt-0.5">बुकिंग</span>
-          </button>
-          <button onclick="openModal('settingsModal')" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-emerald-400">
-            <i class="fa-solid fa-sliders text-base"></i>
-            <span class="text-[10px] font-medium">रेट & समय</span>
-          </button>
-        </nav>
-
-        <!-- Home Indicator Bar -->
-        <div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-600 rounded-full z-30 pointer-events-none"></div>
-
-      </div> <!-- End Inner Phone Screen -->
-    </div> <!-- End Outer Shell -->
-
-  </div>
+        </div> <!-- /mainAppContent -->
+      </div> <!-- /Phone Screen Viewport -->
+    </div> <!-- /Phone Shell -->
+  </div> <!-- /Main Container -->
 
   <!-- MODAL: Walk-In Booking -->
   <div id="walkinModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl w-full max-w-xs p-4 shadow-2xl animate-pop space-y-3">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-        <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+        <h3 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
           <i class="fa-solid fa-user-plus text-emerald-400"></i>
-          <span>वॉक-इन ग्राहक जोड़ें</span>
+          <span>नई वॉक-इन ग्राहक बुकिंग</span>
         </h3>
         <button onclick="closeModal('walkinModal')" class="text-slate-400 hover:text-white text-sm">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <div class="space-y-2.5 text-xs">
+      <div class="space-y-2 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1 font-medium">ग्राहक का नाम</label>
-          <input id="walkinName" type="text" placeholder="उदा: राहुल कुमार" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
+          <label class="block text-[10px] text-slate-400 mb-1">ग्राहक का नाम</label>
+          <input id="walkinName" type="text" placeholder="नाम लिखें" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-emerald-500">
         </div>
         <div>
-          <label class="block text-slate-400 mb-1 font-medium">मोबाइल नंबर</label>
-          <input id="walkinPhone" type="tel" placeholder="9876543210" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
+          <label class="block text-[10px] text-slate-400 mb-1">मोबाइल नंबर</label>
+          <input id="walkinPhone" type="tel" placeholder="10-अंकों का नंबर" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-emerald-500">
         </div>
         <div>
-          <label class="block text-slate-400 mb-1 font-medium">सर्विस चुनें</label>
-          <select id="walkinService" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
-            <!-- Dynamic services from JS -->
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-[10px] text-slate-400">सर्विस(s) चुनें (मल्टीपल सेलेक्ट करें)</label>
+            <span id="serviceDurationBadge" class="text-[9px] bg-emerald-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded">समय: 25 मिनट</span>
+          </div>
+          <!-- Multi-service selection box -->
+          <div id="walkinServiceContainer" class="max-h-28 overflow-y-auto bg-slate-950 border border-slate-800 rounded-lg p-2 space-y-1.5 no-scrollbar">
+            <!-- Dynamically populated checkboxes -->
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-1">स्टार्ट समय स्लॉट चुनें</label>
+          <select id="walkinTime" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-emerald-500">
+            <!-- Dynamically populated -->
           </select>
         </div>
-        <div>
-          <label class="block text-slate-400 mb-1 font-medium">25 मिनट समय स्लॉट</label>
-          <select id="walkinTime" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
-            <!-- Dynamic 25-min interval time slots -->
-          </select>
-        </div>
-        <div>
-          <label class="block text-slate-400 mb-1 font-medium">विशेष निर्देश / नोट</label>
-          <input id="walkinNote" type="text" placeholder="उदा: केवल कैंची कटिंग" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
+        <!-- Auto Send WhatsApp Checkbox Toggle inside Walk-in Modal -->
+        <div class="pt-1 flex items-center justify-between bg-slate-950 p-2 rounded-xl border border-slate-800">
+          <span class="text-[11px] text-slate-300 font-medium flex items-center gap-1.5">
+            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+            <span>रसीद तुरंत WhatsApp पर भेजें</span>
+          </span>
+          <input id="walkinAutoWASwitch" type="checkbox" checked class="w-4 h-4 accent-emerald-500 rounded cursor-pointer">
         </div>
       </div>
 
@@ -274,21 +260,26 @@
   <div id="rearrangeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl w-full max-w-xs p-4 shadow-2xl animate-pop space-y-3">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-        <h3 class="font-bold text-sm text-amber-400 flex items-center gap-1.5">
-          <i class="fa-solid fa-clock-rotate-left"></i>
-          <span>समय री-शेड्यूल करें (25 मिनट)</span>
+        <h3 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
+          <i class="fa-solid fa-clock-rotate-left text-amber-400"></i>
+          <span>समय री-शेड्यूल करें</span>
         </h3>
         <button onclick="closeModal('rearrangeModal')" class="text-slate-400 hover:text-white text-sm">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
+
       <input type="hidden" id="rearrangeBookingId">
+
       <div class="space-y-2 text-xs">
-        <label class="block text-slate-400 font-medium">नया समय स्लॉट चुनें:</label>
-        <select id="rearrangeNewTime" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 outline-none focus:border-emerald-500">
-          <!-- Dynamically populated -->
-        </select>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-1">नया 25-मिनट समय स्लॉट चुनें</label>
+          <select id="rearrangeNewTime" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-emerald-500">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
       </div>
+
       <div class="pt-2 flex gap-2">
         <button onclick="closeModal('rearrangeModal')" class="flex-1 py-2 bg-slate-800 text-slate-300 font-semibold rounded-xl text-xs">रद्द करें</button>
         <button onclick="saveRearrangeBooking()" class="flex-1 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl text-xs shadow-md">समय बदलें</button>
@@ -296,67 +287,104 @@
     </div>
   </div>
 
-  <!-- MODAL: 30-Day Analytics & History -->
+  <!-- MODAL: 30-Day History & Analytics -->
   <div id="historyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl w-full max-w-xs p-4 shadow-2xl animate-pop space-y-3 max-h-[80vh] flex flex-col">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-        <h3 class="font-bold text-sm text-emerald-400 flex items-center gap-1.5">
-          <i class="fa-solid fa-chart-line"></i>
-          <span>30 दिनों की हिस्ट्री & एनालिटिक्स</span>
+        <h3 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
+          <i class="fa-solid fa-chart-line text-emerald-400"></i>
+          <span>30-दिनों की हिस्ट्री & एनालिटिक्स</span>
         </h3>
         <button onclick="closeModal('historyModal')" class="text-slate-400 hover:text-white text-sm">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      
-      <div class="flex justify-between items-center text-xs bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-        <div>
-          <span class="text-slate-400 block text-[10px]">कुल बुकिंग</span>
-          <span id="total30DaysCount" class="font-bold text-emerald-400 text-sm">0</span>
+
+      <div class="grid grid-cols-2 gap-2 text-center text-xs">
+        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 block">कुल बुकिंग्स</span>
+          <span id="total30DaysCount" class="font-black text-emerald-400 text-base">0</span>
         </div>
-        <div class="text-right">
-          <span class="text-slate-400 block text-[10px]">कुल कमाई</span>
-          <span id="total30DaysRevenue" class="font-bold text-emerald-400 text-sm">₹0</span>
+        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 block">कुल आय</span>
+          <span id="total30DaysRevenue" class="font-black text-emerald-400 text-base">₹0</span>
         </div>
       </div>
 
-      <div id="historyListContainer" class="flex-1 overflow-y-auto space-y-2 no-scrollbar pr-1">
-        <!-- Rendered via JS -->
+      <div id="historyListContainer" class="flex-1 overflow-y-auto space-y-1.5 no-scrollbar pr-1">
+        <!-- Dynamically populated -->
       </div>
 
-      <div class="pt-2 border-t border-slate-800 flex justify-between">
-        <button onclick="clear30DaysHistory()" class="text-red-400 hover:text-red-300 text-[11px] underline">हिस्ट्री साफ़ करें</button>
-        <button onclick="closeModal('historyModal')" class="bg-slate-800 text-slate-200 px-3 py-1.5 rounded-xl text-xs">बंद करें</button>
+      <div class="pt-2 flex gap-2 border-t border-slate-800">
+        <button onclick="clear30DaysHistory()" class="flex-1 py-1.5 bg-red-950/40 hover:bg-red-900/50 text-red-400 rounded-xl text-xs border border-red-900/30">हिस्ट्री साफ़ करें</button>
+        <button onclick="closeModal('historyModal')" class="flex-1 py-1.5 bg-slate-800 text-slate-200 rounded-xl text-xs">बंद करें</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: Settings & Live Price Editing -->
+  <!-- MODAL: Settings & Dynamic No-Code Supabase Configuration -->
   <div id="settingsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 text-slate-100 rounded-3xl w-full max-w-xs p-4 shadow-2xl animate-pop space-y-3 max-h-[85vh] overflow-y-auto no-scrollbar">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
         <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
           <i class="fa-solid fa-gear text-emerald-400"></i>
-          <span>दुकान की सेटिंग & रेट लिस्ट</span>
+          <span>दुकान सेटिंग्स & डेटाबेस</span>
         </h3>
         <button onclick="closeModal('settingsModal')" class="text-slate-400 hover:text-white text-sm">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
+      <!-- NO-CODE SUPABASE CONNECTION PANEL -->
+      <div class="space-y-2 text-xs bg-slate-950 p-3 rounded-2xl border border-emerald-800/60 shadow-sm">
+        <div class="flex justify-between items-center">
+          <label class="font-bold text-emerald-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-database text-xs"></i>
+            <span>Supabase डेटाबेस (No-Code)</span>
+          </label>
+          <span id="supabaseStatusBadge" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-amber-950 text-amber-400 border border-amber-800">
+            अकनेक्टेड
+          </span>
+        </div>
+        <p class="text-[10px] text-slate-400">बिना कोडिंग के अपनी सुपेबेस क्रेडेंशियल्स यहाँ डालें:</p>
+
+        <div>
+          <label class="block text-[10px] text-slate-300 font-medium mb-1">1. Supabase Project URL</label>
+          <input id="sbUrlInput" type="text" placeholder="https://xyz.supabase.co" class="w-full bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-emerald-500 font-mono">
+        </div>
+
+        <div>
+          <label class="block text-[10px] text-slate-300 font-medium mb-1">2. Supabase Anon / Publishable Key</label>
+          <input id="sbKeyInput" type="password" placeholder="eyJhbGciOiJIUzI1Ni..." class="w-full bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-emerald-500 font-mono">
+        </div>
+
+        <div class="pt-1 flex gap-1.5">
+          <button onclick="saveAndConnectSupabase()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded-lg font-bold text-[11px] shadow">
+            <i class="fa-solid fa-plug-circle-check mr-1"></i>कनेक्ट करें
+          </button>
+          <button onclick="testSupabaseConnectionUI()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg text-[11px] border border-slate-700" title="कनेक्शन जांचें">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+          <button onclick="clearSupabaseConfig()" class="bg-red-950/40 hover:bg-red-900/50 text-red-400 px-2 py-1.5 rounded-lg text-[11px] border border-red-900/30" title="क्रेडेंशियल्स हटाएं">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
       <!-- WhatsApp API / Target Phone Configuration -->
-      <div class="space-y-2 text-xs bg-slate-950 p-2.5 rounded-xl border border-emerald-900/40">
+      <div class="space-y-2 text-xs bg-slate-950 p-2.5 rounded-xl border border-slate-800">
         <label class="block font-bold text-emerald-400 flex items-center gap-1.5">
           <i class="fa-brands fa-whatsapp text-sm"></i>
-          <span>WhatsApp API / नंबर सेटिंग्स</span>
+          <span>WhatsApp ऑटो-मैसेज सेटिंग्स</span>
         </label>
         <div>
-          <span class="text-[10px] text-slate-400 block mb-1">WhatsApp मोबाइल नंबर (Country Code सहित):</span>
+          <span class="text-[10px] text-slate-400 block mb-1">दुकानदार का WhatsApp नंबर (उदा: 919455892653):</span>
           <div class="flex gap-1.5">
             <input id="whatsappNumberInput" type="text" placeholder="उदा: 919455892653" class="flex-1 bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-emerald-500">
             <button onclick="saveWhatsAppConfig()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-semibold text-[11px] shadow">सेव करें</button>
           </div>
         </div>
+        <p class="text-[9px] text-slate-400 italic mt-1">* नई बुकिंग बनने या स्थिति बदलने पर वॉट्सऐप पर एक-क्लिक रसीद भेजने की सुविधा मिलेगी।</p>
       </div>
 
       <!-- Vacation Mode Settings -->
@@ -398,54 +426,149 @@
       </div>
 
       <div class="pt-3 flex gap-2 border-t border-slate-800">
-        <button onclick="closeModal('settingsModal')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs shadow-md">सेटिंग्स सेव करें</button>
+        <button onclick="closeModal('settingsModal')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs shadow-md">बंद करें</button>
       </div>
     </div>
   </div>
 
   <!-- JavaScript Application Core -->
   <script>
-    // Supabase Connection Credentials Provided By User
-    const SUPABASE_URL = "https://pwnymknrhbbisbzsgrrk.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_WKdBYqM2x-XZIwnKoY82aA_9mc6AbdQ";
-    
-    // Initialize Supabase Client (avoiding variable name collision with CDN global object)
+    // Global System State & Database Variables
+    let isRevenueVisible = true;
+    let isShopOpen = true;
+    let isAutoWhatsAppEnabled = true; // Auto WhatsApp message toggle flag
+    let vacationMode = { active: false, startDate: "", reopenDate: "" };
+
+    // Supabase Configuration & Client References
+    let supabaseUrl = localStorage.getItem('sb_url') || "https://pwnymknrhbbisbzsgrrk.supabase.co";
+    let supabaseKey = localStorage.getItem('sb_key') || "sb_publishable_WKdBYqM2x-XZIwnKoY82aA_9mc6AbdQ";
     let supabaseClient = null;
     let isSupabaseConnected = false;
+    let ownerWhatsAppNumber = localStorage.getItem('chhotu_whatsapp_number') || "919455892653";
 
-    try {
-      if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Initialize Supabase Client Safely
+    function initSupabaseFromConfig(url, key) {
+      if (window.supabase && url && key) {
+        try {
+          supabaseClient = window.supabase.createClient(url, key);
+          return true;
+        } catch (err) {
+          console.warn("Supabase init error:", err);
+          supabaseClient = null;
+          return false;
+        }
       }
-    } catch (e) {
-      console.warn("Supabase init error, falling back to LocalStorage:", e);
+      return false;
     }
 
-    // Dynamic Owner WhatsApp Number (Configurable from app UI)
-    let ownerWhatsAppNumber = localStorage.getItem('chhotu_whatsapp_number') || "";
+    // Toggle Auto WhatsApp Messaging Feature Status
+    function toggleAutoWhatsApp() {
+      isAutoWhatsAppEnabled = !isAutoWhatsAppEnabled;
+      const btn = document.getElementById('autoWhatsAppBtn');
+      const txt = document.getElementById('autoWAText');
+      
+      if (isAutoWhatsAppEnabled) {
+        btn.className = "bg-emerald-900/80 hover:bg-emerald-800 active:scale-95 text-emerald-300 p-2 rounded-lg text-xs transition border border-emerald-600/50 shadow-sm flex items-center gap-1";
+        txt.innerText = "ऑटो: ON";
+        showToast("ऑटो WhatsApp मैसेजिंग चालू (ON) की गई!");
+      } else {
+        btn.className = "bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-400 p-2 rounded-lg text-xs transition border border-slate-700 shadow-sm flex items-center gap-1";
+        txt.innerText = "ऑटो: OFF";
+        showToast("ऑटो WhatsApp मैसेजिंग बंद (OFF) की गई");
+      }
+    }
 
-    // Save Dynamic WhatsApp API Config from UI
-    function saveWhatsAppConfig() {
-      const inputVal = document.getElementById('whatsappNumberInput').value.trim();
-      if (!inputVal) {
-        showToast("कृपया वैध WhatsApp नंबर दर्ज करें!");
+    // Save and Test No-Code Supabase Configuration
+    async function saveAndConnectSupabase() {
+      const url = document.getElementById('sbUrlInput').value.trim();
+      const key = document.getElementById('sbKeyInput').value.trim();
+
+      if (!url || !key) {
+        showToast("कृपया प्रोजेक्ट URL और Key दोनों भरें!");
         return;
       }
-      // Remove any unwanted symbols, spaces or plus signs
-      ownerWhatsAppNumber = inputVal.replace(/[^0-9]/g, '');
-      localStorage.setItem('chhotu_whatsapp_number', ownerWhatsAppNumber);
-      showToast("WhatsApp नंबर सफलतापूर्वक सेव हो गया!");
+
+      supabaseUrl = url;
+      supabaseKey = key;
+      localStorage.setItem('sb_url', url);
+      localStorage.setItem('sb_key', key);
+
+      initSupabaseFromConfig(url, key);
+      await testSupabaseConnectionUI();
     }
 
-    // Application State Variables
-    let isShopOpen = true;
-    let isRevenueVisible = true;
+    async function testSupabaseConnectionUI() {
+      const statusBadge = document.getElementById('supabaseStatusBadge');
 
-    let vacationMode = {
-      active: false,
-      startDate: "",
-      reopenDate: ""
-    };
+      if (!supabaseClient) {
+        initSupabaseFromConfig(supabaseUrl, supabaseKey);
+      }
+
+      if (!supabaseClient) {
+        if (statusBadge) {
+          statusBadge.innerText = "कनेक्शन विफल";
+          statusBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold bg-red-950 text-red-400 border border-red-800";
+        }
+        updateSupabaseBadgeUI(false, "Local Only");
+        showToast("Supabase कनेक्ट नहीं हो सका!");
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient.from('bookings').select('id').limit(1);
+        if (error && error.code !== 'PGRST116') {
+          // If table doesn't exist yet, standard connection is still valid
+          console.log("Supabase connected but table missing:", error);
+        }
+        isSupabaseConnected = true;
+        if (statusBadge) {
+          statusBadge.innerText = "कनेक्टेड (Live)";
+          statusBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800";
+        }
+        updateSupabaseBadgeUI(true, "Live DB");
+        showToast("Supabase डेटाबेस सफलतापूर्वक कनेक्ट हुआ!");
+      } catch (e) {
+        isSupabaseConnected = false;
+        if (statusBadge) {
+          statusBadge.innerText = "ऑफ़लाइन";
+          statusBadge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold bg-amber-950 text-amber-400 border border-amber-800";
+        }
+        updateSupabaseBadgeUI(false, "Local Backup");
+        showToast("डेटाबेस ऑफ़लाइन मोड में चल रहा है");
+      }
+    }
+
+    function clearSupabaseConfig() {
+      localStorage.removeItem('sb_url');
+      localStorage.removeItem('sb_key');
+      supabaseUrl = "";
+      supabaseKey = "";
+      supabaseClient = null;
+      isSupabaseConnected = false;
+
+      document.getElementById('sbUrlInput').value = "";
+      document.getElementById('sbKeyInput').value = "";
+      updateSupabaseBadgeUI(false, "Local Only");
+      showToast("Supabase क्रेडेंशियल्स हटा दिए गए हैं");
+    }
+
+    function updateSupabaseBadgeUI(connected, text) {
+      const badge = document.getElementById('dbSyncBadge');
+      const dot = document.getElementById('dbSyncDot');
+      const textEl = document.getElementById('dbSyncText');
+
+      if (!badge || !dot || !textEl) return;
+
+      if (connected) {
+        dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping";
+        textEl.innerText = text;
+        badge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 cursor-pointer";
+      } else {
+        dot.className = "w-1.5 h-1.5 rounded-full bg-amber-400";
+        textEl.innerText = text;
+        badge.className = "text-[9px] px-1.5 py-0.5 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700 flex items-center gap-1 cursor-pointer";
+      }
+    }
 
     let services = [
       { id: 1, name: "हेयरकट (Haircut)", price: 100 },
@@ -477,7 +600,6 @@
         
         const timeStr = `${formattedHours}:${formattedMins} ${period}`;
         
-        // Determine initial status based on existing sample bookings
         let status = 'free';
         if (timeStr === '09:15 AM' || timeStr === '10:55 AM' || timeStr === '01:00 PM') {
           status = 'booked';
@@ -486,7 +608,7 @@
         }
 
         slots.push({ time: timeStr, status: status });
-        currentMinutes += 25; // Advance by 25 minutes
+        currentMinutes += 25;
       }
       return slots;
     }
@@ -521,16 +643,28 @@
     // Window Init
     window.onload = async function() {
       loadLocalStorageData();
-      await checkSupabaseConnection();
+
+      // Populate Settings Inputs
+      const urlInput = document.getElementById('sbUrlInput');
+      const keyInput = document.getElementById('sbKeyInput');
+      const waInput = document.getElementById('whatsappNumberInput');
+
+      if (urlInput) urlInput.value = supabaseUrl;
+      if (keyInput) keyInput.value = supabaseKey;
+      if (waInput) waInput.value = ownerWhatsAppNumber;
+
+      if (supabaseUrl && supabaseKey) {
+        initSupabaseFromConfig(supabaseUrl, supabaseKey);
+        await testSupabaseConnectionUI();
+      } else {
+        updateSupabaseBadgeUI(false, "Local Only");
+      }
+
       renderBookings();
       renderTimeSlots();
       renderServiceDropdown();
       renderServiceSettings();
       calculateStats();
-
-      // Populate WhatsApp Input UI field
-      const waInput = document.getElementById('whatsappNumberInput');
-      if (waInput) waInput.value = ownerWhatsAppNumber;
     };
 
     // Load Backup LocalStorage Data
@@ -563,73 +697,47 @@
       }
     }
 
-    // Supabase Sync & Connection Verification
-    async function checkSupabaseConnection() {
-      const badge = document.getElementById('dbSyncBadge');
-      if (!supabaseClient) {
-        if (badge) badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Local Backup`;
+    // WhatsApp Direct Messages
+    function saveWhatsAppConfig() {
+      const val = document.getElementById('whatsappNumberInput').value.trim();
+      if (!val) {
+        showToast("कृपया नंबर दर्ज करें!");
         return;
       }
-
-      try {
-        // Attempt a light query to test connection
-        const { data, error } = await supabaseClient.from('bookings').select('*').limit(5);
-        if (!error && data) {
-          isSupabaseConnected = true;
-          if (data.length > 0) {
-            bookings = data.map(item => ({
-              id: item.id || Date.now(),
-              name: item.customer_name || item.name || "ग्राहक",
-              phone: item.phone || "9876543210",
-              service: item.service_name || item.service || "सर्विस",
-              price: item.price || 100,
-              time: item.time_slot || item.time || "09:00 AM",
-              status: item.status || "Confirm"
-            }));
-          }
-          if (badge) badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live DB`;
-        } else {
-          if (badge) badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Supabase Active`;
-        }
-      } catch (err) {
-        console.log("Supabase connected with offline fallback:", err);
-        if (badge) badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Local Sync`;
-      }
+      ownerWhatsAppNumber = val;
+      localStorage.setItem('chhotu_whatsapp_number', val);
+      showToast("WhatsApp नंबर सफलतापूर्वक सेव हो गया!");
     }
 
-    // WhatsApp Direct Messages
     function sendTestWhatsAppMessage() {
       if (!ownerWhatsAppNumber) {
         showToast("पहले सेटिंग्स में जाकर WhatsApp नंबर दर्ज करें!");
         openModal('settingsModal');
         return;
       }
-      const msg = encodeURIComponent("💈 *छोटू बारबर शॉप - सुपेबेस अलर्ट test*\n\nनमस्ते ऑनर! आपका डैशबोर्ड WhatsApp से सफलतापूर्वक जुड़ा हुआ है।");
+      const msg = encodeURIComponent("💈 *छोटू बारबर शॉप - वॉट्सऐप अलर्ट*\n\nनमस्ते ऑनर! आपका डैशबोर्ड WhatsApp मैसेजिंग के लिए तैयार है।");
       window.open(`https://wa.me/${ownerWhatsAppNumber}?text=${msg}`, '_blank');
-      showToast("WhatsApp मेसेज भेजा जा रहा है...");
+      showToast("WhatsApp खोला जा रहा है...");
     }
 
     function sendBookingWhatsApp(id) {
-      if (!ownerWhatsAppNumber) {
-        showToast("पहले सेटिंग्स में जाकर WhatsApp नंबर दर्ज करें!");
-        openModal('settingsModal');
-        return;
-      }
       const b = bookings.find(item => item.id === id);
       if (!b) return;
 
-      const text = `💈 *छोटू बारबर शॉप - बुकिंग रसीद*\n\n` +
+      const targetPhone = b.phone ? (b.phone.startsWith('91') ? b.phone : '91' + b.phone) : ownerWhatsAppNumber;
+
+      const text = `💈 *छोटू बारबर शॉप - अपॉइंटमेंट रसीद*\n\n` +
                    `👤 *ग्राहक:* ${b.name}\n` +
                    `📞 *फ़ोन:* ${b.phone}\n` +
                    `✂️ *सर्विस:* ${b.service}\n` +
-                   `⏰ *25-मि समय:* ${b.time}\n` +
-                   `💰 *शुल्क:* ₹${b.price}\n` +
+                   `⏰ *समय स्लॉट:* ${b.time}\n` +
+                   `💰 *कुल शुल्क:* ₹${b.price}\n` +
                    `📌 *स्थिति:* ${b.status === 'Completed' ? 'पूरा हुआ (Paid)' : 'कन्फर्म'}\n\n` +
-                   `धन्यवाद! फिर पधारें।`;
+                   `धन्यवाद! छोटू बारबर शॉप में आपका स्वागत है।`;
 
       const encodedMsg = encodeURIComponent(text);
-      window.open(`https://wa.me/${ownerWhatsAppNumber}?text=${encodedMsg}`, '_blank');
-      showToast("WhatsApp रसीद भेजी जा रही है...");
+      window.open(`https://wa.me/${targetPhone}?text=${encodedMsg}`, '_blank');
+      showToast("WhatsApp मैसेज भेजा जा रहा है...");
     }
 
     // Holiday Status Toggle
@@ -829,6 +937,7 @@
       const phone = document.getElementById('walkinPhone').value.trim();
       const serviceId = document.getElementById('walkinService').value;
       const time = document.getElementById('walkinTime').value;
+      const sendModalWA = document.getElementById('walkinAutoWASwitch') ? document.getElementById('walkinAutoWASwitch').checked : true;
 
       if (!name || !phone) {
         showToast("कृपया नाम और मोबाइल भरें!");
@@ -875,6 +984,13 @@
       renderTimeSlots();
 
       showToast("नई वॉक-इन बुकिंग सफलतापूर्वक जोड़ी गई!");
+
+      // Trigger Auto WhatsApp Message if Enabled
+      if (isAutoWhatsAppEnabled && sendModalWA) {
+        setTimeout(() => {
+          sendBookingWhatsApp(newBookingObj.id);
+        }, 400);
+      }
     }
 
     // Rearrange / Reschedule Booking Modal Logic
@@ -907,41 +1023,127 @@
 
     // Service Management Options
     function renderServiceDropdown() {
-      const select = document.getElementById('walkinService');
-      if (!select) return;
-      select.innerHTML = "";
-      services.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.innerText = `${s.name} - ₹${s.price}`;
-        select.appendChild(opt);
-      });
-    }
-
-    function renderServiceSettings() {
-      const container = document.getElementById('serviceEditList');
+      const container = document.getElementById('walkinServiceContainer');
       if (!container) return;
       container.innerHTML = "";
-
+      
       services.forEach(s => {
-        const div = document.createElement('div');
-        div.className = "flex items-center gap-1.5";
+        const div = document.createElement('label');
+        div.className = "flex items-center justify-between text-[11px] text-slate-200 cursor-pointer p-1 hover:bg-slate-900 rounded";
         div.innerHTML = `
-          <input type="text" value="${escapeHtml(s.name)}" onchange="updateServiceData(${s.id}, 'name', this.value)" class="flex-1 bg-slate-950 border border-slate-800 text-white rounded-lg px-2 py-1 text-[11px] outline-none">
-          <input type="number" value="${s.price}" onchange="updateServiceData(${s.id}, 'price', this.value)" class="w-16 bg-slate-950 border border-slate-800 text-emerald-400 font-bold rounded-lg px-2 py-1 text-[11px] outline-none">
-          <button onclick="removeService(${s.id})" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" value="${s.id}" data-price="${s.price}" data-name="${escapeHtml(s.name)}" class="service-checkbox w-3.5 h-3.5 accent-emerald-500 rounded" onchange="updateSelectedServicesDuration()">
+            <span>${escapeHtml(s.name)}</span>
+          </div>
+          <span class="font-bold text-emerald-400">₹${s.price}</span>
         `;
         container.appendChild(div);
       });
+      updateSelectedServicesDuration();
     }
 
-    function updateServiceData(id, field, val) {
-      const serv = services.find(s => s.id === id);
-      if (serv) {
-        if (field === 'price') serv.price = parseFloat(val) || 0;
-        else serv.name = val;
-        renderServiceDropdown();
-        saveLocalStorageData();
+    // Dynamic Duration Calculation: 1 Service = 25 Mins, 2+ Services = 40 Mins
+    function updateSelectedServicesDuration() {
+      const checkboxes = document.querySelectorAll('.service-checkbox:checked');
+      const badge = document.getElementById('serviceDurationBadge');
+      const count = checkboxes.length;
+      
+      let durationMins = 25;
+      if (count >= 2) {
+        durationMins = 40;
+      }
+
+      if (badge) {
+        if (count === 0) {
+          badge.innerText = "समय: 25 मिनट";
+          badge.className = "text-[9px] bg-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded";
+        } else if (count === 1) {
+          badge.innerText = "1 सर्विस: 25 मिनट स्लॉट";
+          badge.className = "text-[9px] bg-emerald-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded";
+        } else {
+          badge.innerText = `${count} सर्विसेज: 40 मिनट स्लॉट (ऑटो)`;
+          badge.className = "text-[9px] bg-amber-500/20 text-amber-400 font-bold px-1.5 py-0.5 rounded animate-pulse";
+        }
+      }
+      return { count, durationMins };
+    }
+
+    // Save Walk-in Customer Booking with Multi-Service & Dynamic Time Logic
+    async function saveWalkinBooking() {
+      const name = document.getElementById('walkinName').value.trim();
+      const phone = document.getElementById('walkinPhone').value.trim();
+      const time = document.getElementById('walkinTime').value;
+      const sendModalWA = document.getElementById('walkinAutoWASwitch') ? document.getElementById('walkinAutoWASwitch').checked : true;
+
+      const selectedCheckboxes = document.querySelectorAll('.service-checkbox:checked');
+
+      if (!name || !phone) {
+        showToast("कृपया नाम और मोबाइल भरें!");
+        return;
+      }
+
+      if (selectedCheckboxes.length === 0) {
+        showToast("कम से कम 1 सर्विस चुनें!");
+        return;
+      }
+
+      let selectedNames = [];
+      let totalPrice = 0;
+
+      selectedCheckboxes.forEach(cb => {
+        selectedNames.push(cb.getAttribute('data-name'));
+        totalPrice += parseFloat(cb.getAttribute('data-price')) || 0;
+      });
+
+      const { count, durationMins } = updateSelectedServicesDuration();
+      const serviceSummaryText = selectedNames.join(" + ") + ` (${durationMins} मि)`;
+
+      const newBookingObj = {
+        id: Date.now(),
+        name: name,
+        phone: phone,
+        service: serviceSummaryText,
+        price: totalPrice,
+        time: time,
+        duration: durationMins,
+        status: "Confirm"
+      };
+
+      bookings.unshift(newBookingObj);
+
+      // Attempt Supabase Async Insert
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('bookings').insert([{
+            customer_name: name,
+            phone: phone,
+            service_name: serviceSummaryText,
+            price: totalPrice,
+            time_slot: time,
+            status: "Confirm"
+          }]);
+        } catch(e) {
+          console.log("Saved locally, DB sync error:", e);
+        }
+      }
+
+      // Mark slot booked
+      const slot = timeSlots.find(s => s.time === time);
+      if (slot) slot.status = 'booked';
+
+      document.getElementById('walkinName').value = "";
+      document.getElementById('walkinPhone').value = "";
+      closeModal('walkinModal');
+      renderBookings();
+      renderTimeSlots();
+
+      showToast(`बुकिंग जोड़ी गई (${durationMins} मिनट सेट किया गया)!`);
+
+      // Trigger Auto WhatsApp Message if Enabled
+      if (isAutoWhatsAppEnabled && sendModalWA) {
+        setTimeout(() => {
+          sendBookingWhatsApp(newBookingObj.id);
+        }, 400);
       }
     }
 
@@ -950,6 +1152,28 @@
       renderServiceSettings();
       renderServiceDropdown();
       saveLocalStorageData();
+    }
+
+    // Render Dynamic Service Rate List in Settings Modal
+    function renderServiceSettings() {
+      const container = document.getElementById('serviceEditList');
+      if (!container) return;
+      container.innerHTML = "";
+
+      services.forEach(s => {
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-slate-800 text-xs";
+        div.innerHTML = `
+          <span class="text-slate-200 font-medium">${escapeHtml(s.name)}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-emerald-400">₹${s.price}</span>
+            <button onclick="removeService(${s.id})" class="text-red-400 hover:text-red-300 p-1" title="हटाएं">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
     }
 
     function addNewService() {
